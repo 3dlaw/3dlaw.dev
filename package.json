@@ -1,0 +1,17 @@
+{
+  "name": "3dlaw-website",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview"
+  },
+  "dependencies": {
+    "astro": "7.3.2"
+  },
+  "engines": {
+    "node": ">=22.12.0"
+  }
+}

@@ -1,0 +1,46 @@
+---
+import '../styles/global.css';
+
+interface Props {
+  title: string;
+  description?: string;
+}
+
+const { title, description = 'The personal website of Dan Lawrence.' } = Astro.props;
+// BASE_URL keeps links working on both a custom domain and /repository/ URLs.
+const base = import.meta.env.BASE_URL;
+const navigation = [
+  { label: 'Home', path: '' },
+  { label: 'Writing', path: 'writing/' },
+  { label: 'Projects', path: 'projects/' },
+  { label: 'About', path: 'about/' },
+];
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content={description} />
+    <link rel="icon" type="image/svg+xml" href={`${base}favicon.svg`} />
+    <title>{title} | 3DLaw</title>
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">Skip to content</a>
+    <header>
+      <a class="site-name" href={base}>3DLaw</a>
+      <nav aria-label="Main navigation">
+        {navigation.map(({ label, path }) => (
+          <a href={`${base}${path}`} aria-current={Astro.url.pathname === `${base}${path}` ? 'page' : undefined}>
+            {label}
+          </a>
+        ))}
+      </nav>
+    </header>
+    <main id="main-content" tabindex="-1">
+      <slot />
+    </main>
+    <footer>Dan Lawrence · 3DLaw</footer>
+  </body>
+</html>

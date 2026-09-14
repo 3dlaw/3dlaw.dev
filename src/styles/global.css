@@ -1,0 +1,28 @@
+/* Deliberately plain. This is a starting point, not a finished visual identity. */
+:root {
+  color-scheme: light;
+  font-family: system-ui, sans-serif;
+  color: #202124;
+  background: #fff;
+  line-height: 1.65;
+}
+
+* { box-sizing: border-box; }
+body { max-width: 56rem; margin: 0 auto; padding: 0 1.25rem; }
+header { padding: 1.5rem 0; border-bottom: 1px solid #ddd; }
+.site-name { font-size: 1.25rem; font-weight: 700; color: inherit; }
+nav { display: flex; flex-wrap: wrap; gap: .5rem 1.25rem; margin-top: .75rem; }
+nav a { padding: .25rem 0; }
+a { color: #174ea6; text-underline-offset: .2em; }
+nav a[aria-current="page"] { color: inherit; font-weight: 700; }
+main { min-height: 55vh; padding: 2.5rem 0; overflow-wrap: anywhere; }
+main:focus { outline: none; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 2rem; }
+p, ul, ol { max-width: 70ch; }
+img { max-width: 100%; height: auto; }
+pre { overflow-x: auto; padding: 1rem; }
+footer { border-top: 1px solid #ddd; padding: 1.5rem 0; font-size: .875rem; color: #555; }
+:focus-visible { outline: 3px solid #174ea6; outline-offset: 4px; }
+.skip-link { position: absolute; top: -10rem; padding: .5rem; background: white; }
+.skip-link:focus { top: .5rem; }
