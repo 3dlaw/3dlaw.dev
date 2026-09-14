@@ -1,8 +1,8 @@
 import { defineConfig } from 'astro/config';
 
 export default defineConfig({
-  site: 'https://3dlaw.github.io',
-  base: '/3dlaw.dev',
+  site: 'https://3dlaw.dev',
+  base: '/',
   output: 'static',
   trailingSlash: 'always',
 });
