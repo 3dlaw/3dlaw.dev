@@ -15,7 +15,7 @@ nav { display: flex; flex-wrap: wrap; gap: .5rem 1.25rem; margin-top: .75rem; }
 nav a { padding: .25rem 0; }
 a { color: #174ea6; text-underline-offset: .2em; }
 nav a[aria-current="page"] { color: inherit; font-weight: 700; }
-main { min-height: 55vh; padding: 2.5rem 0; overflow-wrap: anywhere; }
+main { min-height: 55vh; padding: 1rem 0; overflow-wrap: anywhere; }
 main:focus { outline: none; }
 h1, h2, h3 { line-height: 1.25; }
 h1 { font-size: 2rem; }
@@ -26,3 +26,11 @@ footer { border-top: 1px solid #ddd; padding: 1.5rem 0; font-size: .875rem; colo
 :focus-visible { outline: 3px solid #174ea6; outline-offset: 4px; }
 .skip-link { position: absolute; top: -10rem; padding: .5rem; background: white; }
 .skip-link:focus { top: .5rem; }
+.home-intro {
+  font-size: 1.25rem;
+}
+.home-section{
+  margin-top: 2rem;
+  border-top: 1px solid;
+  padding-top: 0.5rem;
+}
