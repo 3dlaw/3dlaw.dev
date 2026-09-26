@@ -1,0 +1,41 @@
+---
+interface Props { variant: 'world' | 'geometry'; }
+const {variant} = Astro.props;
+---
+<div class:list={['project-art', `art-${variant}`]} aria-hidden="true">
+  {variant === 'world' ? (
+    <svg viewBox="0 0 640 400" fill="none">
+      <defs>
+        <radialGradient id="world-haze"><stop stop-color="#79554f" stop-opacity=".5"/><stop offset="1" stop-color="#251e22" stop-opacity="0"/></radialGradient>
+        <linearGradient id="door-light" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#d7b899"/><stop offset="1" stop-color="#a47769" stop-opacity=".03"/></linearGradient>
+        <linearGradient id="door-face" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#706367"/><stop offset="1" stop-color="#27232c"/></linearGradient>
+      </defs>
+      <ellipse cx="320" cy="225" rx="250" ry="190" fill="url(#world-haze)"/>
+      <path d="M0 310 640 275M0 360 640 305M140 400 320 270 520 400M-80 400 320 270 740 400" stroke="#74626b" stroke-opacity=".14"/>
+      <path d="m291 273-97 127h280l-104-132" fill="url(#door-light)" opacity=".15"/>
+      <path d="m243 279 18-164 115-25 17 183-35 15-12-149-52 11-16 141Z" fill="#1d1b22" stroke="#71616a" stroke-width=".8"/>
+      <path d="m261 115 18 10 93-19 4-16Z" fill="#8b777b"/>
+      <path d="m279 125-12 160 27-135 52-11 12 149 14-182Z" fill="url(#door-face)"/>
+      <path d="m294 150-12 130 68-4-4-137Z" fill="#17161d"/>
+      <path d="m294 150 52-11 12 149" stroke="#e8c5a8" stroke-opacity=".75" stroke-width="1.6"/>
+      <path d="m270 176 9-8-4-12 10-13M368 242l-8-14 4-12" stroke="#b39793" stroke-opacity=".4"/>
+      <circle cx="423" cy="107" r="1" fill="#d0b3a4"/><circle cx="214" cy="195" r="1.2" fill="#d0b3a4"/><circle cx="445" cy="257" r=".9" fill="#d0b3a4"/>
+    </svg>
+  ) : (
+    <svg viewBox="0 0 640 400" fill="none">
+      <defs><radialGradient id="geo-haze"><stop stop-color="#806ab6" stop-opacity=".17"/><stop offset="1" stop-color="#302941" stop-opacity="0"/></radialGradient></defs>
+      <ellipse cx="320" cy="210" rx="240" ry="190" fill="url(#geo-haze)"/>
+      <g transform="translate(320 204)">
+        <path d="M-210 80 10 155 223 46M-210 80-14-48 223 46M10 155V-145" stroke="#b6a4d1" stroke-opacity=".12"/>
+        <g transform="rotate(-24)">
+          {Array.from({length: 13}, (_, i) => <ellipse rx={30 + i * 8.5} ry="118" transform={`rotate(${i * 15})`} stroke="#ac97cf" stroke-opacity={.16 + i * .034} stroke-width=".85"/>)}
+          <ellipse rx="132" ry="48" stroke="#dec8ff" stroke-opacity=".8"/>
+          <ellipse rx="132" ry="79" stroke="#b5a0d5" stroke-opacity=".45"/>
+          <ellipse rx="132" ry="108" stroke="#b5a0d5" stroke-opacity=".3"/>
+        </g>
+        <circle cx="123" cy="-33" r="3" fill="#d2b8f5"/><path d="m123-33 58-61h53" stroke="#c1a4e0" stroke-opacity=".45"/>
+        <path d="m-127 30-60 52h-30" stroke="#c1a4e0" stroke-opacity=".45"/><circle cx="-127" cy="30" r="2.5" fill="#c1a4e0"/>
+      </g>
+    </svg>
+  )}
+</div>

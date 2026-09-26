@@ -1,0 +1,10 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ProjectArt from '../../components/ProjectArt.astro';
+const base = import.meta.env.BASE_URL;
+---
+<BaseLayout title="Beneath the surface">
+  <section class="project-intro"><a class="back-link" href={`${base}projects/`}>← All projects</a><div class="detail-heading"><div><p class="eyebrow">Geometry · Engineering</p><h1>Beneath <em>the surface.</em></h1></div><span class="status-tag"><i aria-hidden="true"></i>In development</span></div><p>Understanding the geometry and computation behind the models we build.</p></section>
+  <div class="project-banner"><ProjectArt variant="geometry" /></div>
+  <section class="project-description"><p class="eyebrow">The direction</p><div><h2>How does it <em>actually work?</em></h2><p>A developing exploration of SOLIDWORKS model behavior: the relationship between geometry, the image on screen, and the work the computer does behind it.</p><p>The aim is to bring these ideas into focus through writing, experiments, and visual explanations. Published work will appear here as it develops.</p></div></section>
+</BaseLayout>

@@ -1,9 +1,9 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import ProjectCards from '../components/ProjectCards.astro';
 ---
-
 <BaseLayout title="Projects">
-  <h1>Projects</h1>
-  <p>No projects listed yet.</p>
-  <!-- Add only the projects you choose to feature. -->
+  <section class="page-intro"><p class="eyebrow">Ideas, in progress</p><h1>Things taking <em>shape.</em></h1><p>Imagined worlds, technical questions, and the experiments that connect them.</p></section>
+  <section class="projects-page" aria-label="Current projects"><ProjectCards /></section>
+  <p class="page-endnote"><span class="small-star" aria-hidden="true">✳</span> An evolving collection. There’s more to come.</p>
 </BaseLayout>

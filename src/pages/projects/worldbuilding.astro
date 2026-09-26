@@ -1,0 +1,10 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ProjectArt from '../../components/ProjectArt.astro';
+const base = import.meta.env.BASE_URL;
+---
+<BaseLayout title="Worldbuilding">
+  <section class="project-intro"><a class="back-link" href={`${base}projects/`}>← All projects</a><div class="detail-heading"><div><p class="eyebrow">Stories · Film</p><h1><em>Worldbuilding.</em></h1></div><span class="status-tag"><i aria-hidden="true"></i>In development</span></div><p>Imagined worlds, explored through stories and cinematic experiments.</p></section>
+  <div class="project-banner"><ProjectArt variant="world" /></div>
+  <section class="project-description"><p class="eyebrow">The direction</p><div><h2>A world beyond <em>the frame.</em></h2><p>An evolving collection of stories, places, and objects, explored through writing and 3D animation.</p><p>This space will grow with the work. For now, the questions, scenes, and possibilities are still taking shape.</p></div></section>
+</BaseLayout>

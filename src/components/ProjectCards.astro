@@ -1,0 +1,14 @@
+---
+import ProjectArt from './ProjectArt.astro';
+const base = import.meta.env.BASE_URL;
+---
+<div class="project-grid">
+  <a class="project-card" href={`${base}projects/worldbuilding/`}>
+    <ProjectArt variant="world" />
+    <div class="project-info"><div class="project-meta"><span>Stories · Film</span><span class="project-number">01</span></div><h3>Worldbuilding <span aria-hidden="true">↗</span></h3><p>Imagined worlds. Stories and scenes waiting to be explored.</p></div>
+  </a>
+  <a class="project-card" href={`${base}projects/model-behavior/`}>
+    <ProjectArt variant="geometry" />
+    <div class="project-info"><div class="project-meta"><span>Geometry · Engineering</span><span class="project-number">02</span></div><h3>Beneath the surface <span aria-hidden="true">↗</span></h3><p>Looking closer at how 3D models work, and why they behave the way they do.</p></div>
+  </a>
+</div>

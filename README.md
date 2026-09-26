@@ -1,23 +1,49 @@
 # 3DLaw.dev
 
-Dan Lawrence's personal website and portfolio, being developed for `3dlaw.dev`.
+Dan Lawrence's personal website: a place for creative work, technical exploration,
+writing, and ongoing experiments.
 
-A home for writing, projects, and ongoing exploration across engineering,
-software, mathematics, and other interests.
+## Development
 
-## Site sections
+Use Node.js 24 and install the pinned dependencies:
 
-- **Writing** — Articles and longer-form work, including the planned
-  *Understanding SOLIDWORKS Models* series.
-- **Projects** — Selected work and experiments.
-- **About** — Background and interests.
+```sh
+npm ci
+npm run dev
+```
 
-## Technology
+On Windows, use `npm.cmd` if PowerShell blocks `npm.ps1`.
+Astro prints the local preview URL, normally `http://localhost:4321`.
 
-Built with Astro, plain CSS, and support for Markdown articles. The site generates
-static pages and is designed for deployment to GitHub Pages with a custom domain.
+```sh
+npm run build
+npm run preview
+```
 
-## Status
+## Structure
 
-Early development. The initial page structure and shared layouts are in place.
-Content and visual identity will develop alongside the site.
+- `src/pages/` — Home, Projects, Writing, About, and project introductions.
+- `src/layouts/` — Shared navigation, footer, and article layout.
+- `src/styles/global.css` — Colors, typography, spacing, and responsive layouts.
+- `src/components/ProjectArt.astro` — Inline vector artwork for project cards.
+- `src/components/Sculpture.astro` and `src/scripts/sculpture.ts` — Interactive
+  homepage form, built with native WebGL and a static SVG fallback.
+- `examples/article.md` — Starter for future Markdown articles.
+
+The homepage sculpture is a temporary visual study, not the final 3DLAW logo.
+It can later be replaced with a custom model. Motion can be paused, follows the
+system's reduced-motion preference, and stops while off screen or in a hidden tab.
+
+## Content
+
+Worldbuilding and the model-behavior exploration are marked as in development.
+The Writing page has an intentional empty state until the first piece is ready.
+The imagery is conceptual; it does not establish story details or finished work.
+
+## Hosting
+
+Astro generates a static site for GitHub Pages at `https://3dlaw.dev`.
+Publishing uses the existing **manual** GitHub Actions workflow. Pushing a branch
+does not deploy it. Review the design locally before merging and publishing.
+
+No external fonts, image services, or new runtime dependencies are required.

@@ -1,0 +1,17 @@
+<figure class="sculpture" aria-label="An interactive violet knot sculpture">
+  <div class="sculpture-aura" aria-hidden="true"></div>
+  <svg class="sculpture-fallback" viewBox="0 0 600 600" aria-hidden="true">
+    <defs><linearGradient id="knot-light" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#ddd0ed"/><stop offset=".42" stop-color="#9b79b6"/><stop offset="1" stop-color="#443050"/></linearGradient></defs>
+    <g fill="none" stroke="url(#knot-light)" stroke-width="56">
+      <ellipse cx="300" cy="300" rx="185" ry="95" transform="rotate(-35 300 300)"/>
+      <ellipse cx="300" cy="300" rx="185" ry="95" transform="rotate(85 300 300)"/>
+      <ellipse cx="300" cy="300" rx="185" ry="95" transform="rotate(205 300 300)"/>
+    </g>
+  </svg>
+  <canvas class="sculpture-canvas" tabindex="0" role="img" aria-label="Rotating three-dimensional knot. Drag or use arrow keys to rotate. Use the motion button to pause."></canvas>
+  <figcaption class="sculpture-caption"><span><i aria-hidden="true"></i>A study in form</span><button class="motion-toggle" type="button" aria-label="Pause sculpture animation" hidden><svg class="pause-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M5 3v10M11 3v10"/></svg><span>Pause motion</span></button></figcaption>
+</figure>
+<script>
+  import { initSculptures } from '../scripts/sculpture';
+  initSculptures();
+</script>

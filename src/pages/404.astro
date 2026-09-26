@@ -1,8 +1,5 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+const base = import.meta.env.BASE_URL;
 ---
-
-<BaseLayout title="Page not found">
-  <h1>Page not found</h1>
-  <p><a href={import.meta.env.BASE_URL}>Return home</a>.</p>
-</BaseLayout>
+<BaseLayout title="Page not found"><section class="page-intro missing-page"><p class="eyebrow">404 / A small detour</p><h1>A little <em>off course.</em></h1><p>This page hasn’t taken shape. Let’s head back to familiar ground.</p><a class="button" href={base}>Back to home <span aria-hidden="true">↗</span></a></section></BaseLayout>
