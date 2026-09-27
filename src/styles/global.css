@@ -104,7 +104,7 @@ main:focus { outline: none; }
 .notebook-band h2 { font-size: 43px; margin-top: 21px; line-height: 1.16; }
 .notebook-copy { max-width: 340px; justify-self: center; }
 .notebook-copy p { font-size: 14px; color: var(--muted); margin-bottom: 20px; }
-.site-footer { display: flex; justify-content: space-between; gap: 32px; align-items: center; padding-block: 30px; border-top: 1px solid var(--line); }
+.site-footer { display: flex; justify-content: space-between; gap: 32px; align-items: center; padding-block: 30px 100px; border-top: 1px solid var(--line); }
 .footer-signature { font-size: 15px; letter-spacing: -.04em; font-weight: 600; display: flex; align-items: center; gap: 22px; }
 .footer-signature span { font-weight: 400; color: var(--faint); font-size: 10px; letter-spacing: 0; }
 .footer-links { font-size: 10px; color: var(--faint); display: flex; align-items: center; gap: 35px; }

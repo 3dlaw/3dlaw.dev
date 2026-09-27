@@ -1,0 +1,44 @@
+---
+import '../styles/exploration.css';
+import { directions, directionInfo } from '../data/room-map';
+const base = import.meta.env.BASE_URL;
+---
+<div data-exploration>
+  <section class="depths-landing" aria-labelledby="hero-title" data-landing>
+    <div class="depths-introduction">
+      <h1 id="hero-title">3D<span>Law</span></h1>
+      <p>Curiosity goes deeper.</p>
+      <p class="depths-invitation">Take a look beneath the surface.</p>
+      <button class="descend-button" data-descend hidden>Descend <span aria-hidden="true">↓</span></button>
+      <noscript><p class="depths-invitation">Use the navigation above to explore the site.</p></noscript>
+    </div>
+  </section>
+  <section class="depths-panel" id="explore" aria-label="The depths" data-depths-panel hidden>
+    <img class="room-fallback" src={`${base}room-fallback.png`} alt="" aria-hidden="true" />
+    <canvas data-room-canvas tabindex="0" aria-label="Enclosed room with four hallways. Click a hallway to travel, or drag to look around." aria-describedby="depths-help"></canvas>
+    <div class="room-vignette" aria-hidden="true"></div>
+    <div class="depths-caption"><span>The depths</span><span data-room-name>Room 05</span></div>
+    <div class="depths-controls">
+      <div class="look-controls" aria-label="Look around">
+        <button data-turn="1" aria-label="Look left">←</button>
+        <button data-turn="2" aria-label="Turn around">↶</button>
+        <button data-turn="-1" aria-label="Look right">→</button>
+      </div>
+      <p id="depths-help" data-depths-help>Click a hallway to continue · Drag to look</p>
+      <div class="depths-actions">
+        <details class="hallway-menu" data-hallway-menu>
+          <summary>Hallways <span aria-hidden="true">⌄</span></summary>
+          <div>{directions.map(direction => <button data-hallway={direction}>{directionInfo[direction].label} <span aria-hidden="true">→</span></button>)}</div>
+        </details>
+        <button data-return>Return above <span aria-hidden="true">↑</span></button>
+      </div>
+    </div>
+    <p class="depths-message" data-depths-message role="status" hidden></p>
+    <p class="visually-hidden" role="status" aria-live="polite" data-room-status></p>
+  </section>
+</div>
+<script>
+  import { bindExploration } from '../scripts/exploration';
+  const root = document.querySelector<HTMLElement>('[data-exploration]');
+  if (root) bindExploration(root);
+</script>

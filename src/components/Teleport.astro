@@ -1,0 +1,52 @@
+---
+import { destinations } from '../data/destinations';
+const base = import.meta.env.BASE_URL;
+---
+<details class="teleport" data-teleport>
+  <summary><span aria-hidden="true">⌖</span> Teleport</summary>
+  <nav class="teleport-panel" aria-label="Teleport navigation">
+    <p class="eyebrow">Where would you like to go?</p>
+    <a href={base}>Home <span aria-hidden="true">↗</span></a>
+    <a href={`${base}#explore`}>The depths <span>Descend</span></a>
+    {destinations.map(room => (
+      <div class="teleport-destination">
+        <a href={`${base}${room.path}`}>{room.name} <span aria-hidden="true">↗</span></a>
+      </div>
+    ))}
+    <a href={`${base}about/`}>About <span aria-hidden="true">↗</span></a>
+  </nav>
+</details>
+<script>
+  const menu = document.querySelector<HTMLDetailsElement>('[data-teleport]');
+  if (menu) {
+    document.addEventListener('pointerdown', event => {
+      if (!menu.contains(event.target as Node)) menu.open = false;
+    });
+    document.addEventListener('keydown', event => {
+      if (event.key === 'Escape' && menu.open) {
+        menu.open = false;
+        menu.querySelector('summary')?.focus();
+      }
+    });
+    menu.addEventListener('click', event => {
+      const link = (event.target as Element).closest<HTMLAnchorElement>('a');
+      if (link && !(event as MouseEvent).ctrlKey && !(event as MouseEvent).metaKey) menu.open = false;
+    });
+  }
+</script>
+<style>
+  .teleport { position: fixed; bottom: 24px; right: 24px; z-index: 30; }
+  summary { list-style: none; cursor: pointer; display: flex; align-items: center; gap: 12px; padding: 12px 20px; border: 1px solid #c3a6e860; border-radius: 3px; background: #211b2bee; box-shadow: 0 8px 35px #0005; font-size: 13px; }
+  summary::-webkit-details-marker { display: none; }
+  summary > span { font-size: 20px; color: var(--accent); line-height: 1; }
+  .teleport-panel { position: absolute; bottom: calc(100% + 10px); right: 0; width: 330px; max-width: calc(100vw - 32px); padding: 24px; background: #211c28fa; border: 1px solid #c3a6e845; border-radius: 4px; box-shadow: 0 15px 60px #0008; }
+  .teleport-panel .eyebrow { margin-bottom: 16px; font-size: 9px; }
+  .teleport-panel a { display: flex; align-items: center; justify-content: space-between; gap: 15px; font-size: 13px; padding: 12px 0; }
+  .teleport-panel > a, .teleport-destination { border-top: 1px solid var(--line); }
+  .teleport-panel a:hover { color: var(--accent); }
+  .teleport-panel a span { color: var(--faint); font-size: 10px; }
+  .teleport-destination { display: flex; gap: 16px; align-items: center; }
+  .teleport-destination > a:first-child { flex: 1; }
+  .teleport-destination .teleport-room { font-size: 10px; color: var(--accent); gap: 5px; }
+  @media (max-width: 600px) { .teleport { right: 16px; bottom: 16px; } summary { padding: 10px 15px; } }
+</style>

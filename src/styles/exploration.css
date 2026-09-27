@@ -1,0 +1,62 @@
+html:has(.immersive-home) { scroll-behavior: auto; background: #141218; }
+.immersive-home .site-shell { max-width: none; padding: 0; }
+.immersive-home .site-header { position: relative; z-index: 45; width: calc(100% - 96px); max-width: 1296px; margin-inline: auto; min-height: 96px; }
+.immersive-home.depths-open .site-header { position: fixed; top: 0; left: 50%; transform: translateX(-50%); background: #141218de; backdrop-filter: blur(8px); padding-inline: 20px; }
+.immersive-home .skip-link { z-index: 60; }
+.depths-landing { min-height: calc(100svh - 96px); display: grid; place-items: center; text-align: center; padding: 40px 24px 112px; }
+.depths-introduction h1 { font-family: var(--serif); font-size: clamp(86px, 11vw, 164px); line-height: 1; letter-spacing: -.065em; }
+.depths-introduction h1 span { color: var(--accent); }
+.depths-introduction > p:first-of-type { font-family: var(--serif); font-size: clamp(22px, 2.5vw, 31px); color: var(--text); margin-top: 32px; }
+.depths-invitation { margin-top: 10px; font-size: 14px; color: var(--muted); }
+.descend-button { margin-top: 34px; border: 1px solid #c3a6e873; background: #c3a6e80c; padding: 13px 25px; border-radius: 2px; display: inline-flex; align-items: center; gap: 32px; font-size: 13px; }
+.descend-button:hover { background: #c3a6e824; border-color: var(--accent); }
+.descend-button span { color: var(--accent); font-size: 22px; line-height: 1; }
+.depths-panel { position: fixed; inset: 0; z-index: 30; overflow: hidden; background: #0c0b10; }
+.depths-panel[hidden], .depths-panel [hidden] { display: none !important; }
+.depths-panel canvas, .room-fallback { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.room-fallback { object-fit: cover; }
+.depths-panel canvas { opacity: 0; touch-action: none; cursor: grab; }
+.depths-panel canvas:focus-visible { outline-offset: -6px; }
+.depths-panel.is-rendered canvas { opacity: 1; }
+.depths-panel.is-rendered .room-fallback { visibility: hidden; }
+.depths-panel canvas.is-over-hallway { cursor: pointer; }
+.depths-panel canvas:active { cursor: grabbing; }
+.depths-panel.is-busy canvas { cursor: default; }
+.room-vignette { position: absolute; inset: 0; pointer-events: none; background: radial-gradient(ellipse at 50% 45%, transparent 35%, #08070b55); }
+.depths-caption { position: absolute; top: 117px; left: 48px; right: 48px; display: flex; justify-content: space-between; color: #b8afc1; font-size: 10px; text-transform: uppercase; letter-spacing: .12em; pointer-events: none; }
+.depths-controls { position: absolute; bottom: 22px; left: 32px; right: 32px; display: flex; justify-content: space-between; align-items: center; gap: 20px; }
+.depths-controls button, .hallway-menu summary { border: 1px solid #c3a6e838; border-radius: 2px; background: #17131deb; color: #dad1e2; padding: 11px 15px; font-size: 11px; cursor: pointer; min-height: 42px; }
+.depths-controls button:hover, .hallway-menu summary:hover { border-color: #c3a6e88f; background: #27212f; }
+.depths-controls button:disabled { opacity: .45; cursor: default; }
+.look-controls, .depths-actions { display: flex; gap: 8px; }
+.look-controls button { min-width: 42px; font-size: 17px; padding: 8px 13px; }
+.depths-controls > p { color: #b7afc0; font-size: 11px; text-align: center; }
+.depths-actions > button span { margin-left: 12px; }
+.hallway-menu { position: relative; }
+.hallway-menu summary { list-style: none; display: flex; align-items: center; gap: 18px; }
+.hallway-menu summary::-webkit-details-marker { display: none; }
+.hallway-menu > div { position: absolute; right: 0; bottom: calc(100% + 8px); width: 180px; padding: 8px; background: #17131df5; border: 1px solid #c3a6e838; }
+.hallway-menu button { width: 100%; display: flex; justify-content: space-between; border: 0; }
+.depths-message { position: absolute; top: 45%; left: 50%; transform: translateX(-50%); max-width: min(440px, 88vw); padding: 20px; background: #141218ee; color: var(--text); text-align: center; font-size: 13px; }
+.visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+@media (max-width: 750px) {
+  .immersive-home .site-header { width: calc(100% - 32px); min-height: 84px; gap: 16px; }
+  .immersive-home .site-header nav { margin: 0 0 0 auto; gap: 16px; }
+  .immersive-home .site-header nav a { font-size: 12px; }
+  .immersive-home .site-header .header-github { display: none; }
+  .immersive-home.depths-open .site-header { padding-inline: 4px; }
+  .depths-landing { min-height: calc(100svh - 84px); padding-bottom: 80px; }
+  .depths-caption { top: 101px; left: 20px; right: 20px; }
+  .depths-controls { left: 16px; right: 16px; bottom: 16px; flex-wrap: wrap; gap: 12px; }
+  .depths-controls > p { order: -1; width: 100%; font-size: 10px; }
+  .depths-actions { margin-left: auto; }
+  .depths-controls button, .hallway-menu summary { padding-inline: 11px; font-size: 10px; }
+  .look-controls { gap: 4px; }
+  .look-controls button { min-width: 34px; font-size: 16px; }
+}
+@media (max-width: 390px) {
+  .immersive-home .site-header nav { gap: 11px; }
+  .immersive-home .wordmark { font-size: 23px; }
+  .depths-actions { gap: 4px; }
+  .depths-controls { gap: 6px; }
+}
