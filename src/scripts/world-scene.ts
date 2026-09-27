@@ -1,108 +1,178 @@
 import * as THREE from 'three';
-import { roomDesign as design } from '../data/room-design';
+import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
+import { roomDesign as design, type RoomPalette } from '../data/room-design';
 import { directionInfo, directions, type Direction } from '../data/room-map';
 
-export interface Surface {
-  width: number; height: number;
-  center: [number, number, number]; rotation: [number, number, number]; color: string;
+export interface RoomPortal {
+  direction: Direction;
+  target: THREE.Mesh;
+  anchor: THREE.Vector3;
 }
 
-// A surface list makes the basic room replaceable independently of navigation.
-// A future modeled room can replace this builder while retaining the exits.
-export function roomSurfaces(radius = 2): Surface[] {
-  const surfaces: Surface[] = [];
-  const { width, depth, height, hallwayWidth: door, hallwayHeight: doorHeight, hallwayLength: length, colors } = design;
-  const add = (w: number, h: number, center: Surface['center'], rotation: Surface['rotation'], color: string) => {
-    surfaces.push({ width: w, height: h, center, rotation, color });
-  };
-  function room(x: number, z: number) {
-    add(width, depth, [x, 0, z], [-Math.PI / 2, 0, 0], colors.floor);
-    add(width, depth, [x, height, z], [Math.PI / 2, 0, 0], colors.ceiling);
-    for (const direction of directions) {
-      const info = directionInfo[direction];
-      const wallWidth = info.x ? depth : width;
-      const half = (info.x ? width : depth) / 2;
-      const centerX = x + info.x * half, centerZ = z + info.z * half;
-      const panelWidth = (wallWidth - door) / 2;
-      for (const sign of [-1, 1]) {
-        const offset = sign * (door + panelWidth) / 2;
-        add(panelWidth, height, [centerX + Math.cos(info.yaw) * offset, height / 2, centerZ - Math.sin(info.yaw) * offset], [0, info.yaw, 0], info.x ? colors.sideWall : colors.wall);
-      }
-      add(door, height - doorHeight, [centerX, (height + doorHeight) / 2, centerZ], [0, info.yaw, 0], info.x ? colors.sideWall : colors.wall);
-    }
-  }
-  function hallway(x: number, z: number, east: boolean) {
-    const yaw = east ? -Math.PI / 2 : 0;
-    const transform = (px: number, py: number, pz: number): Surface['center'] => [x + Math.cos(yaw) * px + Math.sin(yaw) * pz, py, z - Math.sin(yaw) * px + Math.cos(yaw) * pz];
-    // Floor/ceiling use horizontal planes; their dimensions swap for east-west.
-    add(east ? length : door, east ? door : length, [x, 0, z], [-Math.PI / 2, 0, 0], colors.hallwayFloor);
-    add(east ? length : door, east ? door : length, [x, doorHeight, z], [Math.PI / 2, 0, 0], colors.hallwayCeiling);
-    for (const sign of [-1, 1]) {
-      add(length, doorHeight, transform(sign * door / 2, doorHeight / 2, 0), [0, yaw - sign * Math.PI / 2, 0], colors.hallwayWall);
-    }
-  }
-  // A small repeating neighborhood lets the visitor see the next room before
-  // choosing its hallway. Only the current room's four exits are interactive.
-  for (let row = -radius; row <= radius; row++) {
-    for (let column = -radius; column <= radius; column++) {
-      const x = column * (width + length), z = row * (depth + length);
-      room(x, z);
-      if (column < radius) hallway(x + (width + length) / 2, z, true);
-      if (row < radius) hallway(x, z + (depth + length) / 2, false);
-    }
-  }
-  return surfaces;
-}
-
-export function createRoomScene() {
+// Only the current room exists. Each short passage ends in opaque black; its
+// destination is a link, resolved by the navigation controller while concealed.
+// Replace this builder with an authored scene later, retaining these portals.
+export function createRoomScene(palette: RoomPalette) {
+  const { width, depth, height, doorwayWidth: doorWidth, doorwayHeight: doorHeight, passageDepth, wallThickness } = design;
+  const halfWidth = width / 2, halfDepth = depth / 2, halfDoor = doorWidth / 2;
   const scene = new THREE.Scene();
-  scene.background = new THREE.Color(design.colors.background);
-  scene.fog = new THREE.Fog(design.colors.background, 18, 48);
-  const positions: number[] = [], colors: number[] = [], indices: number[] = [];
-  const point = new THREE.Vector3();
-  const rotation = new THREE.Euler();
-  // Combine all plain surfaces into one draw call.
-  for (const surface of roomSurfaces()) {
-    const start = positions.length / 3;
-    const color = new THREE.Color(surface.color);
-    rotation.set(...surface.rotation);
-    for (const [x, y] of [[-1, 1], [1, 1], [-1, -1], [1, -1]]) {
-      point.set(x * surface.width / 2, y * surface.height / 2, 0).applyEuler(rotation);
-      point.x += surface.center[0]; point.y += surface.center[1]; point.z += surface.center[2];
-      positions.push(point.x, point.y, point.z);
-      colors.push(color.r, color.g, color.b);
-    }
-    indices.push(start, start + 2, start + 1, start + 2, start + 3, start + 1);
-  }
-  const geometry = new THREE.BufferGeometry();
-  geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
-  geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
-  geometry.setIndex(indices);
-  geometry.computeBoundingSphere();
-  const material = new THREE.MeshBasicMaterial({ vertexColors: true });
-  const solid = new THREE.Mesh(geometry, material);
-  scene.add(solid);
+  scene.background = new THREE.Color('#050508');
 
-  const targetGeometry = new THREE.PlaneGeometry(design.hallwayWidth, design.hallwayHeight);
-  const targetMaterial = new THREE.MeshBasicMaterial({ transparent: true, opacity: 0, depthWrite: false, side: THREE.DoubleSide });
-  const portals = directions.map(direction => {
+  const geometries: THREE.BufferGeometry[] = [];
+  const wallParts: THREE.BufferGeometry[] = [];
+  const floorParts: THREE.BufferGeometry[] = [];
+  const ceilingParts: THREE.BufferGeometry[] = [];
+  const capParts: THREE.BufferGeometry[] = [];
+  const point = new THREE.Vector3();
+  const clamp = THREE.MathUtils.clamp;
+
+  // Broad, deterministic contact shading supplies gentle depth without shadow
+  // maps, image downloads, grain, or decorative surface detail.
+  const passageShade = (distance: number) => Math.pow(clamp(1 - distance / passageDepth, 0, 1), 1.7);
+  function boundaryDistance(x: number, z: number) {
+    const xGap = Math.max(halfDoor - Math.abs(x), 0);
+    const zGap = Math.max(halfDoor - Math.abs(z), 0);
+    return Math.min(
+      Math.hypot(xGap, halfDepth - z), Math.hypot(xGap, halfDepth + z),
+      Math.hypot(halfWidth - x, zGap), Math.hypot(halfWidth + x, zGap),
+    );
+  }
+  function shade(geometry: THREE.BufferGeometry, kind: 'wall' | 'floor' | 'ceiling') {
+    const positions = geometry.getAttribute('position');
+    const colors = new Float32Array(positions.count * 3);
+    for (let i = 0; i < positions.count; i++) {
+      point.fromBufferAttribute(positions, i);
+      // Cardinal rotations should have exact zero coordinates. Removing sine
+      // roundoff also prevents raycast misses along a shared centreline edge.
+      if (Math.abs(point.x) < 1e-7) point.x = 0;
+      if (Math.abs(point.y) < 1e-7) point.y = 0;
+      if (Math.abs(point.z) < 1e-7) point.z = 0;
+      positions.setXYZ(i, point.x, point.y, point.z);
+      const beyond = Math.max(Math.abs(point.x) - halfWidth, Math.abs(point.z) - halfDepth, 0);
+      let value: number;
+      if (kind === 'wall') {
+        const vertical = Math.sin(clamp(point.y / height, 0, 1) * Math.PI);
+        const corner = Math.hypot(halfWidth - Math.abs(point.x), halfDepth - Math.abs(point.z));
+        value = (0.72 + vertical * 0.28) * (0.69 + 0.31 * clamp(corner / 1.5, 0, 1));
+      } else {
+        const contact = clamp(boundaryDistance(point.x, point.z) / 1.35, 0, 1);
+        value = kind === 'floor' ? 0.58 + 0.42 * Math.sqrt(contact) : 0.65 + 0.35 * contact;
+      }
+      value *= passageShade(beyond);
+      colors.set([value, value, value], i * 3);
+    }
+    geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+    return geometry;
+  }
+  function plane(w: number, h: number, x: number, y: number, z: number, rx = 0, ry = 0, sx = 1, sy = 1) {
+    const geometry = new THREE.PlaneGeometry(w, h, sx, sy);
+    geometry.rotateX(rx);
+    geometry.rotateY(ry);
+    geometry.translate(x, y, z);
+    return geometry;
+  }
+  function block(w: number, h: number, d: number, x: number, y: number, z: number, yaw: number) {
+    const geometry = new THREE.BoxGeometry(w, h, d, Math.max(2, Math.ceil(w / 0.6)), Math.max(2, Math.ceil(h / 0.5)), 1);
+    geometry.translate(x, y, z);
+    geometry.rotateY(yaw);
+    wallParts.push(shade(geometry, 'wall'));
+  }
+
+  floorParts.push(shade(plane(width, depth, 0, 0, 0, -Math.PI / 2, 0, 20, 20), 'floor'));
+  ceilingParts.push(shade(plane(width, depth, 0, height, 0, Math.PI / 2, 0, 16, 16), 'ceiling'));
+  const portals: RoomPortal[] = [];
+  const targetGeometry = new THREE.PlaneGeometry(doorWidth, doorHeight);
+  const targetMaterial = new THREE.MeshBasicMaterial({ transparent: true, opacity: 0, depthWrite: false, colorWrite: false, side: THREE.DoubleSide });
+  geometries.push(targetGeometry);
+
+  for (const direction of directions) {
     const info = directionInfo[direction];
-    const half = (info.x ? design.width : design.depth) / 2;
+    const half = info.x ? halfWidth : halfDepth;
+    const span = info.x ? depth : width;
+    const sideWidth = (span - doorWidth) / 2;
+    const sideCenter = (span + doorWidth) / 4;
+    // Front faces meet the room bounds; thickness extends into the passage.
+    for (const sign of [-1, 1]) block(sideWidth, height, wallThickness, sign * sideCenter, height / 2, -half - wallThickness / 2, info.yaw);
+    block(doorWidth, height - doorHeight, wallThickness, 0, (height + doorHeight) / 2, -half - wallThickness / 2, info.yaw);
+
+    // Door reveals are already the block sides. Start these surfaces beyond
+    // their thickness to avoid coplanar flicker at the doorway.
+    const remaining = passageDepth - wallThickness;
+    const middle = -half - wallThickness - remaining / 2;
+    const rotate = (geometry: THREE.BufferGeometry) => geometry.rotateY(info.yaw);
+    floorParts.push(shade(rotate(plane(doorWidth, passageDepth, 0, 0, -half - passageDepth / 2, -Math.PI / 2, 0, 6, 12)), 'floor'));
+    ceilingParts.push(shade(rotate(plane(doorWidth, remaining, 0, doorHeight, middle, Math.PI / 2, 0, 6, 12)), 'ceiling'));
+    for (const sign of [-1, 1]) {
+      wallParts.push(shade(rotate(plane(remaining, doorHeight, sign * halfDoor, doorHeight / 2, middle, 0, -sign * Math.PI / 2, 12, 6)), 'wall'));
+    }
+    capParts.push(rotate(plane(doorWidth, doorHeight, 0, doorHeight / 2, -half - passageDepth)));
+
     const target = new THREE.Mesh(targetGeometry, targetMaterial);
-    target.position.set(info.x * (half + 0.02), design.hallwayHeight / 2, info.z * (half + 0.02));
+    target.name = 'passage-' + direction;
+    target.position.set(info.x * (half - 0.015), doorHeight / 2, info.z * (half - 0.015));
     target.rotation.y = info.yaw;
     target.userData.direction = direction;
     scene.add(target);
-    return { direction, target };
-  });
-  scene.updateMatrixWorld(true);
-  return {
-    scene, solid, portals,
-    dispose() { geometry.dispose(); material.dispose(); targetGeometry.dispose(); targetMaterial.dispose(); scene.clear(); },
-  };
-}
+    portals.push({ direction, target, anchor: new THREE.Vector3(info.x * (half - 0.07), doorHeight + 0.23, info.z * (half - 0.07)) });
+  }
 
-export function arrivalPosition(direction: Direction) {
-  const info = directionInfo[direction];
-  return { x: info.x * (design.width + design.hallwayLength), z: info.z * (design.depth + design.hallwayLength) };
+  const wallMaterial = new THREE.MeshStandardMaterial({ color: palette.wall, roughness: 1, metalness: 0, vertexColors: true });
+  const floorMaterial = new THREE.MeshStandardMaterial({ color: palette.floor, roughness: 0.98, metalness: 0, vertexColors: true });
+  const ceilingMaterial = new THREE.MeshStandardMaterial({ color: palette.ceiling, roughness: 1, metalness: 0, vertexColors: true });
+  const capMaterial = new THREE.MeshBasicMaterial({ color: '#000000', side: THREE.DoubleSide });
+  const solids: THREE.Object3D[] = [];
+  function merge(parts: THREE.BufferGeometry[], material: THREE.Material, name: string) {
+    const geometry = mergeGeometries(parts, false);
+    if (!geometry) throw new Error('Unable to build room ' + name + '.');
+    parts.forEach(part => part.dispose());
+    geometry.computeBoundingSphere();
+    geometries.push(geometry);
+    const mesh = new THREE.Mesh(geometry, material);
+    mesh.name = name;
+    scene.add(mesh);
+    solids.push(mesh);
+  }
+  merge(wallParts, wallMaterial, 'walls-and-passage-reveals');
+  merge(floorParts, floorMaterial, 'floor');
+  merge(ceilingParts, ceilingMaterial, 'ceiling');
+  merge(capParts, capMaterial, 'sealed-passage-ends');
+
+  const ambient = new THREE.AmbientLight(palette.ambient, 0.55);
+  const hemisphere = new THREE.HemisphereLight(palette.ambient, new THREE.Color(palette.ambient).multiplyScalar(0.18), 0.75);
+  const key = new THREE.DirectionalLight(palette.ambient, 2.1);
+  key.position.set(-3.5, 7, 3);
+  const fill = new THREE.DirectionalLight(palette.accent, 0.4);
+  fill.position.set(4, 3, -2);
+  // Its intensity changes, not visibility, avoiding new shader variants when
+  // the pointer enters a passage. The black cap remains completely unlit.
+  const hoverLight = new THREE.PointLight(palette.accent, 0, 2.8, 2);
+  scene.add(ambient, hemisphere, key, fill, hoverLight);
+  scene.updateMatrixWorld(true);
+
+  return {
+    scene, solids, portals,
+    setPalette(next: RoomPalette) {
+      wallMaterial.color.set(next.wall);
+      floorMaterial.color.set(next.floor);
+      ceilingMaterial.color.set(next.ceiling);
+      ambient.color.set(next.ambient);
+      hemisphere.color.set(next.ambient);
+      hemisphere.groundColor.set(next.ambient).multiplyScalar(0.18);
+      key.color.set(next.ambient);
+      fill.color.set(next.accent);
+      hoverLight.color.set(next.accent);
+    },
+    setHover(direction: Direction | undefined) {
+      if (!direction) { hoverLight.intensity = 0; return; }
+      const info = directionInfo[direction];
+      const half = info.x ? halfWidth : halfDepth;
+      hoverLight.position.set(info.x * (half - 0.3), 0.8, info.z * (half - 0.3));
+      hoverLight.intensity = 0.75;
+    },
+    dispose() {
+      geometries.forEach(geometry => geometry.dispose());
+      [wallMaterial, floorMaterial, ceilingMaterial, capMaterial, targetMaterial].forEach(material => material.dispose());
+      scene.clear();
+    },
+  };
 }

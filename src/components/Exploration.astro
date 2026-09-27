@@ -1,41 +1,65 @@
 ---
 import '../styles/exploration.css';
-import { directions, directionInfo } from '../data/room-map';
+import { directions, directionInfo, roomMap } from '../data/room-map';
 const base = import.meta.env.BASE_URL;
 ---
-<div data-exploration>
+<div data-exploration data-base={base}>
   <section class="depths-landing" aria-labelledby="hero-title" data-landing>
+    <div class="landing-halo" aria-hidden="true"></div>
     <div class="depths-introduction">
-      <h1 id="hero-title">3D<span>Law</span></h1>
-      <p>Curiosity goes deeper.</p>
-      <p class="depths-invitation">Take a look beneath the surface.</p>
-      <button class="descend-button" data-descend hidden>Descend <span aria-hidden="true">↓</span></button>
-      <noscript><p class="depths-invitation">Use the navigation above to explore the site.</p></noscript>
+      <p class="landing-eyebrow">A place for curiosity</p>
+      <h1 id="hero-title">3D<span>Law</span><i aria-hidden="true">.</i></h1>
+      <p class="landing-invitation">There’s more beneath the surface.</p>
+      <button class="descend-button" data-descend hidden><span data-descend-label>Descend</span><span class="descend-arrow" aria-hidden="true">↓</span></button>
+      <p class="landing-note">Ideas, experiments, and imagined worlds.</p>
+      <noscript><p class="landing-note">Explore through the navigation above.</p></noscript>
     </div>
+    <span class="landing-depth-mark" aria-hidden="true"></span>
   </section>
-  <section class="depths-panel" id="explore" aria-label="The depths" data-depths-panel hidden>
-    <img class="room-fallback" src={`${base}room-fallback.png`} alt="" aria-hidden="true" />
-    <canvas data-room-canvas tabindex="0" aria-label="Enclosed room with four hallways. Click a hallway to travel, or drag to look around." aria-describedby="depths-help"></canvas>
+  <dialog class="depths-panel" id="explore" aria-label="Explore the depths" data-depths-panel>
+    <canvas data-room-canvas tabindex="0" aria-label="Walk through the room. W A S D move. Arrow keys move and turn. Drag to look. Click a passage to enter." aria-describedby="depths-help"></canvas>
     <div class="room-vignette" aria-hidden="true"></div>
-    <div class="depths-caption"><span>The depths</span><span data-room-name>Room 05</span></div>
-    <div class="depths-controls">
-      <div class="look-controls" aria-label="Look around">
-        <button data-turn="1" aria-label="Look left">←</button>
-        <button data-turn="2" aria-label="Turn around">↶</button>
-        <button data-turn="-1" aria-label="Look right">→</button>
+    <div class="portal-labels" data-portal-labels>
+      {directions.map(direction => <button class="portal-label" data-portal={direction} hidden><span class="portal-caption">Passage</span><span data-portal-title></span><span class="portal-arrow" aria-hidden="true">↗</span></button>)}
+    </div>
+    <div class="room-darkness" data-darkness aria-hidden="true"></div>
+    <div class="room-hud">
+      <div class="room-topbar">
+        <button class="room-brand" data-return aria-label="3DLaw — return above">3D<span>Law</span><i aria-hidden="true">.</i></button>
+        <span class="room-location">The depths</span>
+        <div class="room-top-actions"><button class="hud-button" data-return>Return above <span aria-hidden="true">↑</span></button><button class="hud-button directory-button" data-open-directory>Directory <span aria-hidden="true">☰</span></button></div>
       </div>
-      <p id="depths-help" data-depths-help>Click a hallway to continue · Drag to look</p>
-      <div class="depths-actions">
-        <details class="hallway-menu" data-hallway-menu>
-          <summary>Hallways <span aria-hidden="true">⌄</span></summary>
-          <div>{directions.map(direction => <button data-hallway={direction}>{directionInfo[direction].label} <span aria-hidden="true">→</span></button>)}</div>
-        </details>
-        <button data-return>Return above <span aria-hidden="true">↑</span></button>
+      <div class="room-bottom">
+        <div class="room-identity"><p data-room-subtitle>A place for curiosity</p><h2 data-room-name>The threshold</h2><button class="room-page-button" data-open-directory>About this room <span aria-hidden="true">↗</span></button></div>
+        <div class="room-guidance"><p id="depths-help"><span class="desktop-help"><kbd>W A S D</kbd> Walk <i>·</i> Drag to look</span><span class="touch-help">Hold arrows to walk · Drag to look</span></p><p>Click a passage, or walk into the darkness.</p></div>
+        <div class="room-tools"><button class="hud-button" data-mouse-look aria-pressed="false" disabled>Mouse look</button><button class="hud-button" data-open-controls aria-label="Open movement and comfort controls">Controls <span aria-hidden="true">?</span></button></div>
       </div>
     </div>
-    <p class="depths-message" data-depths-message role="status" hidden></p>
+    <div class="room-reticle" data-reticle aria-hidden="true" hidden><span></span><p data-aim-label></p></div>
+    <div class="touch-movement" aria-label="Walking controls">
+      <button data-move="forward" aria-label="Walk forward">↑</button><button data-move="left" aria-label="Step left">←</button><button data-move="back" aria-label="Walk backward">↓</button><button data-move="right" aria-label="Step right">→</button>
+    </div>
+    <p class="room-message" data-depths-message role="status" hidden></p>
     <p class="visually-hidden" role="status" aria-live="polite" data-room-status></p>
-  </section>
+    <dialog class="depths-drawer" aria-labelledby="directory-title" data-directory>
+      <div class="drawer-heading"><p class="drawer-eyebrow">Find your way</p><button class="drawer-close" data-close-drawer aria-label="Close directory">×</button></div>
+      <h2 id="directory-title">Directory</h2>
+      <section class="drawer-current"><p class="drawer-label">You are here</p><h3 data-info-title>The threshold</h3><p data-info-description></p><a class="drawer-page-link" data-room-page href={`${base}projects/`}>Browse all projects <span aria-hidden="true">↗</span></a></section>
+      <section class="drawer-section"><h3>Passages from this room</h3><div class="drawer-passages">{directions.map(direction => <button data-hallway={direction} disabled><span>{directionInfo[direction].label}</span><strong data-exit-title></strong><i aria-hidden="true">→</i></button>)}</div></section>
+      <section class="drawer-section"><h3>Go directly to a room</h3><div class="room-shortcuts">{Object.values(roomMap).map(room => <button data-teleport={room.id} disabled>{room.title}<span aria-hidden="true">↗</span></button>)}</div></section>
+      <nav class="drawer-site-nav" aria-label="Site navigation"><a href={`${base}projects/`}>Projects</a><a href={`${base}writing/`}>Writing</a><a href={`${base}about/`}>About</a><button data-return>Return above ↑</button></nav>
+    </dialog>
+    <dialog class="depths-drawer controls-drawer" aria-labelledby="controls-title" data-controls>
+      <div class="drawer-heading"><p class="drawer-eyebrow">Make yourself comfortable</p><button class="drawer-close" data-close-drawer aria-label="Close controls">×</button></div>
+      <h2 id="controls-title">Take your time.</h2>
+      <p class="drawer-intro">There is no hurry, and no wrong turn.</p>
+      <dl class="controls-list"><div><dt>Walk</dt><dd><kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd></dd></div><div><dt>Look around</dt><dd>Click and drag</dd></div><div><dt>Keyboard only</dt><dd><kbd>↑</kbd> <kbd>↓</kbd> walk · <kbd>←</kbd> <kbd>→</kbd> turn</dd></div><div><dt>Enter a passage</dt><dd>Click it, or walk inside</dd></div><div><dt>Mouse look</dt><dd>Move the mouse freely; <kbd>E</kbd> or click to enter</dd></div><div><dt>Release mouse / close</dt><dd><kbd>Esc</kbd></dd></div></dl>
+      <div class="comfort-setting"><label for="look-sensitivity">Look sensitivity</label><input id="look-sensitivity" data-sensitivity type="range" min="0.4" max="1.6" step="0.1" value="0.8" /></div>
+      <label class="comfort-checkbox"><input data-reduced-motion type="checkbox" />Gentle transitions <span>No automatic camera movement</span></label>
+      <p class="controls-note">Walking stays level: no head bob, camera roll, or sprint. Click inside the room to use walking keys. You can also reach every room through the Directory.</p>
+      <button class="drawer-resume" data-close-drawer>Back to the room <span aria-hidden="true">→</span></button>
+    </dialog>
+  </dialog>
 </div>
 <script>
   import { bindExploration } from '../scripts/exploration';

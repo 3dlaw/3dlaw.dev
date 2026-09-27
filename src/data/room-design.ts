@@ -1,25 +1,16 @@
-// Dimensions are in scene metres. This is the common template for every room.
-// Geometry, navigation connections, and camera movement have separate files.
+// Metres. Every scene is local: no neighbouring room geometry is required.
 export const roomDesign = {
-  width: 10,
-  depth: 10,
-  height: 4,
-  hallwayWidth: 2.6,
-  hallwayHeight: 2.7,
-  hallwayLength: 6,
-  colors: {
-    background: '#0c0b10',
-    wall: '#39343f',
-    sideWall: '#302c37',
-    floor: '#29252f',
-    ceiling: '#26222c',
-    hallwayWall: '#24212b',
-    hallwayFloor: '#201d26',
-    hallwayCeiling: '#1d1a23',
-  },
+  width: 8, depth: 10, height: 3.5,
+  doorwayWidth: 2.1, doorwayHeight: 2.55,
+  passageDepth: 1.55, wallThickness: 0.24,
 };
-
-if (roomDesign.hallwayWidth >= Math.min(roomDesign.width, roomDesign.depth)
-  || roomDesign.hallwayHeight >= roomDesign.height) {
-  throw new Error('The hallway opening must fit inside the room walls.');
+export interface RoomPalette {
+  wall: string; floor: string; ceiling: string; accent: string; ambient: string;
 }
+export const roomPalettes: Record<string, RoomPalette> = {
+  threshold: { wall: '#39343f', floor: '#24212b', ceiling: '#25212d', accent: '#bc9bdf', ambient: '#c7bddc' },
+  worldbuilding: { wall: '#393638', floor: '#262327', ceiling: '#272429', accent: '#c9af89', ambient: '#ddd0be' },
+  surface: { wall: '#30383e', floor: '#20262c', ceiling: '#222830', accent: '#98b7c8', ambient: '#beced9' },
+  writing: { wall: '#3a343d', floor: '#28212b', ceiling: '#29232e', accent: '#c8a0be', ambient: '#d6bfd2' },
+  workshop: { wall: '#343b39', floor: '#222925', ceiling: '#242b29', accent: '#9cb9ab', ambient: '#c2d0c7' },
+};

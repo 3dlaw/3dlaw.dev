@@ -6,7 +6,9 @@
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
-    "preview": "astro preview"
+    "preview": "astro preview",
+    "check": "tsc --project tsconfig.depths.json",
+    "test": "npm run build && node --import tsx --test tests/movement.test.ts tests/scene.test.ts tests/navigation.test.ts tests/runtime.test.mjs"
   },
   "dependencies": {
     "astro": "7.3.2",
@@ -16,6 +18,9 @@
     "node": ">=22.12.0"
   },
   "devDependencies": {
-    "@types/three": "0.180.0"
+    "@types/three": "0.180.0",
+    "jsdom": "26.1.0",
+    "tsx": "4.20.6",
+    "typescript": "5.9.3"
   }
 }
