@@ -1,0 +1,79 @@
+---
+import DocumentLayout from './DocumentLayout.astro';
+
+interface Props {
+  title: string;
+  description?: string;
+}
+
+const { title, description } = Astro.props;
+const base = import.meta.env.BASE_URL;
+---
+
+<DocumentLayout title={title} description={description}>
+  <div class="experience">
+    <nav class="experience-nav" aria-label="Exploration navigation">
+      <a href={base}>
+        <span aria-hidden="true">←</span>
+        Home
+      </a>
+
+      <span class="experience-label">3DLAW</span>
+
+      <a href={`${base}#directory`}>Directory</a>
+    </nav>
+
+    <main class="experience-stage" id="main-content" tabindex="-1">
+      <slot />
+    </main>
+  </div>
+</DocumentLayout>
+
+<style>
+  /* Fill the browser's content area, without the website's outer margins. */
+  .experience {
+    height: 100vh;
+    height: 100dvh;
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr);
+    background: var(--bg);
+  }
+
+  /* Ordinary HTML navigation, separate from the future 3D environment. */
+  .experience-nav {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem 1rem;
+    padding: 0.5rem clamp(1rem, 3vw, 2rem);
+    border-bottom: 1px solid var(--line);
+  }
+
+  .experience-nav a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 2.75rem;
+    color: var(--muted);
+    font-size: 0.875rem;
+  }
+
+  .experience-nav a:hover {
+    color: var(--text);
+  }
+
+  .experience-label {
+    color: var(--muted);
+    font-size: 0.75rem;
+    letter-spacing: 0.15em;
+  }
+
+  /* The remaining area belongs to the page's exploration content. */
+  .experience-stage {
+    position: relative;
+    min-width: 0;
+    min-height: 0;
+    overflow: auto;
+  }
+</style>

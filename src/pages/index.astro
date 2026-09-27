@@ -1,23 +1,196 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import Sculpture from '../components/Sculpture.astro';
-import ProjectCards from '../components/ProjectCards.astro';
+
 const base = import.meta.env.BASE_URL;
+
+// These are website destinations, not 3D room definitions.
+const destinations = [
+  { label: 'Auralis', path: 'projects/worldbuilding/' },
+  { label: 'Beneath the Surface', path: 'projects/model-behavior/' },
+  { label: 'Writing', path: 'writing/' },
+  { label: 'About', path: 'about/' },
+];
 ---
-<BaseLayout title="Home">
-  <section class="hero" aria-labelledby="hero-title">
-    <div class="hero-copy">
-      <p class="eyebrow"><span class="small-star" aria-hidden="true">✳</span> The personal corner of Dan Lawrence</p>
-      <h1 id="hero-title">Following<br />my <em>curiosity.</em></h1>
-      <p class="hero-description">Exploring ideas through design, code,<br class="desktop-break" /> and imagined worlds.</p>
-      <div class="hero-actions"><a class="button" href="#explorations">Explore the work <span aria-hidden="true">↘</span></a><a class="text-link" href={`${base}about/`}>A little about me <span aria-hidden="true">↗</span></a></div>
+
+<BaseLayout
+  title="Home"
+  description="3DLAW — imagined worlds, experiments, and things worth understanding."
+>
+  <section class="home-entrance" aria-labelledby="home-title">
+    <h1 class="home-title" id="home-title">3D<span>LAW</span></h1>
+
+    <p class="home-invitation">
+      Imagined worlds, experiments, and things worth understanding.
+    </p>
+
+    <div class="home-actions">
+      <a class="home-enter" href={`${base}explore/`}>
+        Enter the space
+        <span aria-hidden="true">→</span>
+      </a>
+
+      <a class="home-browse" href="#directory">
+        Browse directly
+        <span aria-hidden="true">↓</span>
+      </a>
     </div>
-    <Sculpture />
-    <div class="hero-footnote"><span>Somewhere between the technical and the imagined.</span><a href="#explorations" aria-label="Scroll to current explorations">Scroll to explore <span aria-hidden="true">↓</span></a></div>
   </section>
-  <section class="explorations section-space" id="explorations" aria-labelledby="explorations-title">
-    <div class="section-heading"><div><p class="eyebrow">A few things taking shape</p><h2 id="explorations-title">Current explorations<span class="heading-dot">.</span></h2></div><a class="text-link" href={`${base}projects/`}>All projects <span aria-hidden="true">↗</span></a></div>
-    <ProjectCards />
-  </section>
-  <section class="notebook-band" aria-labelledby="notebook-title"><div><p class="eyebrow">Notes along the way</p><h2 id="notebook-title">Making room for<br /><em>the next question.</em></h2></div><div class="notebook-copy"><p>A place for discoveries, experiments, and things worth understanding a little better.</p><a class="text-link" href={`${base}writing/`}>Visit the notebook <span aria-hidden="true">↗</span></a></div></section>
+
+  <nav
+    class="home-directory"
+    id="directory"
+    aria-labelledby="directory-title"
+    tabindex="-1"
+  >
+    <h2 id="directory-title">Directory</h2>
+
+    <ul class="directory-links">
+      {
+        destinations.map((destination) => (
+          <li>
+            <a href={`${base}${destination.path}`}>
+              <span>{destination.label}</span>
+              <span class="directory-arrow" aria-hidden="true">→</span>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </nav>
 </BaseLayout>
+
+<style>
+  /* Entrance: the identity, invitation, and two ways forward. */
+  .home-entrance {
+    min-height: 62svh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1.75rem;
+    padding-block: 5rem;
+    text-align: center;
+    background: radial-gradient(
+      ellipse at center,
+      rgb(195 166 232 / 7%),
+      transparent 68%
+    );
+  }
+
+  .home-title {
+    margin: 0;
+    font-family: inherit;
+    font-size: clamp(3.5rem, 13vw, 10rem);
+    font-weight: 650;
+    line-height: 1;
+    letter-spacing: -0.075em;
+  }
+
+  .home-title span {
+    color: var(--accent);
+    font-weight: 300;
+  }
+
+  .home-invitation {
+    max-width: 38ch;
+    color: var(--muted);
+    font-size: 1.1rem;
+    line-height: 1.7;
+  }
+
+  .home-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem 2rem;
+    margin-top: 0.5rem;
+  }
+
+  .home-enter {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1.25rem;
+    min-height: 3rem;
+    padding: 0.85rem 1.35rem;
+    border: 1px solid transparent;
+    border-radius: 0.25rem;
+    background: var(--accent);
+    color: var(--bg);
+    font-size: 0.95rem;
+    font-weight: 600;
+  }
+
+  .home-enter:hover {
+    background: var(--text);
+  }
+
+  .home-browse {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    min-height: 3rem;
+    color: var(--muted);
+    font-size: 0.95rem;
+    text-decoration: underline;
+    text-underline-offset: 0.35em;
+  }
+
+  .home-browse:hover {
+    color: var(--text);
+  }
+
+  /* Directory: normal page navigation, independent of the 3D experience. */
+  .home-directory {
+    max-width: 48rem;
+    margin-inline: auto;
+    padding-block: 2rem 4rem;
+  }
+
+  .home-directory h2 {
+    font-family: inherit;
+    font-size: 0.8rem;
+    font-weight: 500;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .directory-links {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0 2rem;
+    margin: 1rem 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .directory-links a {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding-block: 1rem;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .directory-links a:hover {
+    color: var(--accent);
+  }
+
+  .directory-arrow {
+    color: var(--accent);
+  }
+
+  /* Narrow screens: one directory column instead of two. */
+  @media (max-width: 40rem) {
+    .home-entrance {
+      padding-block: 4rem;
+    }
+
+    .directory-links {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

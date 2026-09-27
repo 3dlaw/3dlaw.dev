@@ -1,28 +1,28 @@
 ---
-import '../styles/global.css';
-interface Props { title: string; description?: string; }
-const { title, description = 'The personal corner of Dan Lawrence. Exploring design, code, and imagined worlds.' } = Astro.props;
+import DocumentLayout from './DocumentLayout.astro';
+
+interface Props {
+  title: string;
+  description?: string;
+}
+
+const { title, description } = Astro.props;
+
 const base = import.meta.env.BASE_URL;
+
 const navigation = [
   { label: 'Home', path: '' },
   { label: 'Projects', path: 'projects/' },
   { label: 'Writing', path: 'writing/' },
   { label: 'About', path: 'about/' },
 ];
-const active = (path: string) => path ? Astro.url.pathname.startsWith(`${base}${path}`) : Astro.url.pathname === base;
+
+const active = (path: string) =>
+  path
+    ? Astro.url.pathname.startsWith(`${base}${path}`)
+    : Astro.url.pathname === base;
 ---
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="description" content={description} />
-    <meta name="theme-color" content="#141218" />
-    <link rel="icon" type="image/svg+xml" href={`${base}favicon.svg`} />
-    <title>{title === 'Home' ? '3DLaw — A place for curiosity' : `${title} | 3DLaw`}</title>
-  </head>
-  <body>
-    <a class="skip-link" href="#main-content">Skip to content</a>
+<DocumentLayout title={title} description={description}></DocumentLayout>
     <div class="site-shell">
       <header class="site-header">
         <a class="wordmark" href={base} aria-label="3DLaw home">3D<span>LAW</span><i aria-hidden="true"></i></a>
@@ -39,5 +39,4 @@ const active = (path: string) => path ? Astro.url.pathname.startsWith(`${base}${
         <div class="footer-links"><a href="https://github.com/3dlaw">GitHub <span aria-hidden="true">↗</span></a><span>© {new Date().getFullYear()} Dan Lawrence</span></div>
       </footer>
     </div>
-  </body>
-</html>
+</DocumentLayout>

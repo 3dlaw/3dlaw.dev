@@ -1,0 +1,98 @@
+<experience-canvas>
+  <canvas
+    role="region"
+    tabindex="0"
+    aria-label="3D test room. Click and drag to look around."
+  >
+    A 3D test scene. Use Home or Directory to browse the website.
+  </canvas>
+
+  <p class="scene-message" data-scene-message role="status" hidden></p>
+
+  <noscript>
+    <p class="scene-message">
+      JavaScript is needed for the 3D view.
+      You can still use Home or Directory above.
+    </p>
+  </noscript>
+</experience-canvas>
+
+<script>
+  import { createExperience } from '../experience/createExperience';
+
+  class ExperienceCanvasElement extends HTMLElement {
+    private cleanup?: () => void;
+
+    connectedCallback() {
+      if (this.cleanup) return;
+
+      const canvas = this.querySelector('canvas');
+      const message = this.querySelector<HTMLElement>('[data-scene-message]');
+
+      if (!canvas || !message) return;
+
+      message.hidden = false;
+      message.textContent = 'Starting the 3D view…';
+
+      const showError = (error: unknown) => {
+        message.hidden = false;
+        message.textContent =
+          'The 3D view could not start. You can still use Home or Directory above.';
+
+        console.error('Could not start the 3D experience:', error);
+      };
+
+      try {
+        this.cleanup = createExperience(
+          canvas,
+          () => {
+            message.hidden = true;
+          },
+          showError,
+        );
+      } catch (error) {
+        showError(error);
+      }
+    }
+
+    disconnectedCallback() {
+      this.cleanup?.();
+      this.cleanup = undefined;
+    }
+  }
+
+  if (!customElements.get('experience-canvas')) {
+    customElements.define('experience-canvas', ExperienceCanvasElement);
+  }
+</script>
+
+<style>
+  experience-canvas {
+    display: block;
+    position: relative;
+    width: 100%;
+    height: 100%;
+  }
+
+  canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  .scene-message {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-content: center;
+    margin: 0;
+    padding: 2rem;
+    background: var(--bg);
+    color: var(--muted);
+    text-align: center;
+  }
+
+  .scene-message[hidden] {
+    display: none;
+  }
+</style>
