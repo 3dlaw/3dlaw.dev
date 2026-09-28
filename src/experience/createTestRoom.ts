@@ -137,6 +137,9 @@ export function createTestRoom(scene: Scene): void {
   const testInteraction: InteractionDefinition = {
     type: 'inspect',
     label: 'Inspect',
+    title: 'Test Object',
+    description:
+      'A temporary object used to test inspection inside the 3DLAW environment.',
   };
 
   interactionTarget.metadata = {

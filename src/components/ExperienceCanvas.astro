@@ -20,6 +20,36 @@
     aria-hidden="true"
   ></span>
 
+  <div class="inspection-layer" data-inspection-layer hidden>
+    <section
+      class="inspection-panel"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="inspection-title"
+    >
+      <button
+        type="button"
+        class="inspection-close"
+        data-inspection-close
+      >
+        Close
+      </button>
+
+      <p class="inspection-kicker">Inspection</p>
+
+      <h2 id="inspection-title" data-inspection-title></h2>
+
+      <p
+        class="inspection-description"
+        data-inspection-description
+      ></p>
+
+      <p class="inspection-return">
+        Close, then click the room to resume exploring.
+      </p>
+    </section>
+  </div>
+
   <p id="explore-controls" class="control-hint">
     Click to explore · WASD to walk · Mouse to look · Click objects to interact · Esc to release
   </p>
@@ -46,9 +76,46 @@
       const canvas = this.querySelector('canvas');
       const message = this.querySelector<HTMLElement>('[data-scene-message]');
       const crosshair = this.querySelector<HTMLElement>('[data-crosshair]');
-      const interactionLabel = this.querySelector<HTMLElement>('[data-interaction-label]');
+      const interactionLabel =
+        this.querySelector<HTMLElement>('[data-interaction-label]');
 
-      if (!canvas || !message || !crosshair || !interactionLabel) return;
+      const inspectionLayer =
+        this.querySelector<HTMLElement>('[data-inspection-layer]');
+      const inspectionTitle =
+        this.querySelector<HTMLElement>('[data-inspection-title]');
+      const inspectionDescription =
+        this.querySelector<HTMLElement>('[data-inspection-description]');
+      const inspectionClose =
+        this.querySelector<HTMLButtonElement>('[data-inspection-close]');
+
+      if (
+        !canvas ||
+        !message ||
+        !crosshair ||
+        !interactionLabel ||
+        !inspectionLayer ||
+        !inspectionTitle ||
+        !inspectionDescription ||
+        !inspectionClose
+      ) {
+        return;
+      }
+
+      const closeInspection = () => {
+        if (inspectionLayer.hidden) return;
+
+        inspectionLayer.hidden = true;
+        this.classList.remove('is-inspecting');
+
+        canvas.focus({ preventScroll: true });
+      };
+
+      const onInspectionKeyDown = (event: KeyboardEvent) => {
+        if (event.key !== 'Escape' || inspectionLayer.hidden) return;
+
+        event.preventDefault();
+        closeInspection();
+      };
 
       message.hidden = false;
       message.textContent = 'Starting the 3D view…';
@@ -62,7 +129,7 @@
       };
 
       try {
-        this.cleanup = createExperience(
+        const disposeExperience = createExperience(
           canvas,
           () => {
             message.hidden = true;
@@ -77,9 +144,39 @@
             interactionLabel.classList.toggle('is-visible', hasTarget);
           },
           (interaction) => {
-            interactionLabel.textContent = `${interaction.label} ✓`;
+            if (interaction.type !== 'inspect') return;
+
+            if (document.pointerLockElement === canvas) {
+              document.exitPointerLock();
+            }
+
+            inspectionTitle.textContent = interaction.title;
+            inspectionDescription.textContent =
+              interaction.description;
+
+            inspectionLayer.hidden = false;
+            this.classList.add('is-inspecting');
+
+            inspectionClose.focus({ preventScroll: true });
           },
         );
+
+        inspectionClose.addEventListener('click', closeInspection);
+        document.addEventListener('keydown', onInspectionKeyDown);
+
+        this.cleanup = () => {
+          inspectionClose.removeEventListener(
+            'click',
+            closeInspection,
+          );
+
+          document.removeEventListener(
+            'keydown',
+            onInspectionKeyDown,
+          );
+
+          disposeExperience();
+        };
       } catch (error) {
         showError(error);
       }
@@ -92,7 +189,10 @@
   }
 
   if (!customElements.get('experience-canvas')) {
-    customElements.define('experience-canvas', ExperienceCanvasElement);
+    customElements.define(
+      'experience-canvas',
+      ExperienceCanvasElement,
+    );
   }
 </script>
 
@@ -184,5 +284,84 @@
 
   .interaction-label.is-visible {
     opacity: 1;
+  }
+
+  .inspection-layer {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    display: grid;
+    align-items: center;
+    justify-items: end;
+    padding: clamp(1rem, 4vw, 3rem);
+    background: rgba(20, 18, 24, 0.28);
+  }
+
+  .inspection-layer[hidden] {
+    display: none;
+  }
+
+  .inspection-panel {
+    width: min(30rem, 100%);
+    padding: 2rem;
+    border: 1px solid var(--line);
+    border-radius: 5px;
+    background: rgba(28, 25, 33, 0.96);
+    box-shadow: 0 1.5rem 4rem rgba(0, 0, 0, 0.35);
+  }
+
+  .inspection-close {
+    float: right;
+    padding: 0.4rem 0.7rem;
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    background: transparent;
+    color: var(--muted);
+  }
+
+  .inspection-close:hover {
+    color: var(--text);
+    border-color: var(--accent);
+  }
+
+  .inspection-kicker {
+    margin-bottom: 1rem;
+    color: var(--accent);
+    font-size: 0.7rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  .inspection-panel h2 {
+    margin-bottom: 1rem;
+    font-size: 2rem;
+  }
+
+  .inspection-description {
+    color: var(--muted);
+    font-size: 0.95rem;
+  }
+
+  .inspection-return {
+    margin-top: 1.5rem;
+    color: var(--faint);
+    font-size: 0.75rem;
+  }
+
+  experience-canvas.is-inspecting .crosshair,
+  experience-canvas.is-inspecting .interaction-label,
+  experience-canvas.is-inspecting .control-hint {
+    opacity: 0;
+  }
+
+  @media (max-width: 650px) {
+    .inspection-layer {
+      align-items: end;
+      padding: 1rem;
+    }
+
+    .inspection-panel {
+      width: 100%;
+    }
   }
 </style>

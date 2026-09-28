@@ -1,10 +1,17 @@
-export type InteractionType =
-  | 'inspect'
-  | 'open'
-  | 'interact'
-  | 'collect';
+export type InspectInteraction = {
+  type: 'inspect';
+  label: string;
+  title: string;
+  description: string;
+};
 
-export type InteractionDefinition = {
-  type: InteractionType;
+type BasicInteraction = {
+  type: 'open' | 'interact' | 'collect';
   label: string;
 };
+
+export type InteractionDefinition =
+  | InspectInteraction
+  | BasicInteraction;
+
+export type InteractionType = InteractionDefinition['type'];

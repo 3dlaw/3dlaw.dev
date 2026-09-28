@@ -54,7 +54,7 @@ export function createInteraction(
     }
   };
 
-  const onMouseDown = (event: MouseEvent) => {
+  const onClick = (event: MouseEvent) => {
     // Left click only.
     if (event.button !== 0) return;
 
@@ -68,7 +68,7 @@ export function createInteraction(
     onInteract(interaction);
     };
 
-    canvas.addEventListener('mousedown', onMouseDown);
+    canvas.addEventListener('mousedown', onClick);
 
   const updateObserver = scene.onBeforeRenderObservable.add(() => {
     const ray = camera.getForwardRay(maxDistance);
@@ -85,7 +85,7 @@ export function createInteraction(
 
   return () => {
     scene.onBeforeRenderObservable.remove(updateObserver);
-    canvas.removeEventListener('mousedown', onMouseDown);
+    canvas.removeEventListener('mousedown', onClick);
     setTarget(null);
   };
 }
