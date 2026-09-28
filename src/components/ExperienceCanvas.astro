@@ -2,10 +2,15 @@
   <canvas
     role="region"
     tabindex="0"
-    aria-label="3D test room. Click and drag to look around."
+    aria-label="3D exploration room"
+    aria-describedby="explore-controls"
   >
     A 3D test scene. Use Home or Directory to browse the website.
   </canvas>
+
+  <p id="explore-controls" class="control-hint">
+    Click the room to explore · WASD to walk · Mouse to look · Esc to release
+  </p>
 
   <p class="scene-message" data-scene-message role="status" hidden></p>
 
@@ -94,5 +99,19 @@
 
   .scene-message[hidden] {
     display: none;
+  }
+
+  .control-hint {
+    position: absolute;
+    bottom: 0.75rem;
+    left: 0.75rem;
+    right: 0.75rem;
+    margin: 0;
+    padding: 0.5rem 0.75rem;
+    background: rgba(0, 0, 0, 0.65);
+    color: #fff;
+    font-size: 0.85rem;
+    text-align: center;
+    pointer-events: none;
   }
 </style>

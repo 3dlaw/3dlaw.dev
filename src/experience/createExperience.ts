@@ -1,12 +1,13 @@
 import { Engine } from '@babylonjs/core/Engines/engine';
 import { Scene } from '@babylonjs/core/scene';
 import { FreeCamera } from '@babylonjs/core/Cameras/freeCamera';
-import { FreeCameraMouseInput } from '@babylonjs/core/Cameras/Inputs/freeCameraMouseInput';
+
 import { HemisphericLight } from '@babylonjs/core/Lights/hemisphericLight';
 import { Vector3 } from '@babylonjs/core/Maths/math.vector';
 import { Color3, Color4 } from '@babylonjs/core/Maths/math.color';
 
 import { createTestRoom } from './createTestRoom';
+import { createPlayer } from './createPlayer';
 
 import HavokPhysics from '@babylonjs/havok';
 import havokWasmUrl from '@babylonjs/havok/lib/esm/HavokPhysics.wasm?url';
@@ -24,6 +25,9 @@ export function createExperience(
 
   let ready = false;
   let disposed = false;
+  let removeMouseLook: (() => void) | undefined;
+
+  let disposePlayer: (() => void) | undefined;
 
   const render = () => scene.render();
 
@@ -50,6 +54,12 @@ export function createExperience(
     resizeObserver.disconnect();
     document.removeEventListener('visibilitychange', updateRendering);
 
+    removeMouseLook?.();
+    removeMouseLook = undefined;
+
+    disposePlayer?.();
+    disposePlayer = undefined;
+
     scene.dispose();
     engine.dispose();
   };
@@ -72,16 +82,32 @@ export function createExperience(
     camera.minZ = 0.1;
     camera.fov = (65 * Math.PI) / 180;
 
-    // Keep only our current click-and-drag mouse input.
+    // We control mouse-look ourselves while the canvas owns pointer lock.
     camera.inputs.clear();
 
-    const mouseLook = new FreeCameraMouseInput();
-    mouseLook.buttons = [0];
-    mouseLook.angularSensibility = 1500;
+    const horizontalSensibility = 1000;
+    const verticalSensibility = 2000;
+    const maxPitch = Math.PI / 2;
 
-    camera.inputs.add(mouseLook);
-    camera.inertia = 0;
-    camera.attachControl(canvas, false);
+    const onMouseMove = (event: MouseEvent) => {
+      if (document.pointerLockElement !== canvas) return;
+
+      // Horizontal mouse movement turns the player.
+      camera.rotation.y += event.movementX / horizontalSensibility;
+
+      // Vertical movement looks up/down, but cannot flip the camera over.
+      camera.rotation.x += event.movementY / verticalSensibility;
+      camera.rotation.x = Math.max(
+        -maxPitch,
+        Math.min(maxPitch, camera.rotation.x),
+      );
+    };
+
+    document.addEventListener('mousemove', onMouseMove);
+
+    removeMouseLook = () => {
+      document.removeEventListener('mousemove', onMouseMove);
+    };
 
     // Temporary broad lighting for inspecting the room.
     const light = new HemisphericLight(
@@ -120,6 +146,9 @@ export function createExperience(
 
       // Physics must be enabled before this creates any collision bodies.
       createTestRoom(scene);
+
+      // The player uses the same physics world as the room.
+      disposePlayer = createPlayer(scene, camera, canvas);
 
       scene.executeWhenReady(() => {
         if (disposed) return;
