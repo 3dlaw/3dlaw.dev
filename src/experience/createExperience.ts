@@ -10,6 +10,7 @@ import { createTestRoom } from './createTestRoom';
 import { createPlayer } from './createPlayer';
 import { createInteraction } from './createInteraction';
 import type { InteractionDefinition } from './interactionTypes';
+import { loadTestArtifact } from './loadTestArtifact';
 
 import HavokPhysics from '@babylonjs/havok';
 import havokWasmUrl from '@babylonjs/havok/lib/esm/HavokPhysics.wasm?url';
@@ -154,6 +155,9 @@ export function createExperience(
 
       // Physics must be enabled before this creates any collision bodies.
       createTestRoom(scene);
+      
+      // Test the same interaction system with an externally loaded GLB.
+      await loadTestArtifact(scene);
 
       // The player uses the same physics world as the room.
       disposePlayer = createPlayer(scene, camera, canvas);
