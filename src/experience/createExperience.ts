@@ -8,6 +8,8 @@ import { Color3, Color4 } from '@babylonjs/core/Maths/math.color';
 
 import { createTestRoom } from './createTestRoom';
 import { createPlayer } from './createPlayer';
+import { createInteraction } from './createInteraction';
+import type { InteractionDefinition } from './interactionTypes';
 
 import HavokPhysics from '@babylonjs/havok';
 import havokWasmUrl from '@babylonjs/havok/lib/esm/HavokPhysics.wasm?url';
@@ -19,6 +21,8 @@ export function createExperience(
   canvas: HTMLCanvasElement,
   onReady: () => void,
   onError: (error: unknown) => void,
+  onTargetChange: (interaction: InteractionDefinition | null) => void,
+  onInteract: (interaction: InteractionDefinition) => void,
 ): () => void {
   const engine = new Engine(canvas, true);
   const scene = new Scene(engine);
@@ -28,6 +32,7 @@ export function createExperience(
   let removeMouseLook: (() => void) | undefined;
 
   let disposePlayer: (() => void) | undefined;
+  let disposeInteraction: (() => void) | undefined;
 
   const render = () => scene.render();
 
@@ -56,6 +61,9 @@ export function createExperience(
 
     removeMouseLook?.();
     removeMouseLook = undefined;
+
+    disposeInteraction?.();
+    disposeInteraction = undefined;
 
     disposePlayer?.();
     disposePlayer = undefined;
@@ -149,6 +157,9 @@ export function createExperience(
 
       // The player uses the same physics world as the room.
       disposePlayer = createPlayer(scene, camera, canvas);
+
+      // Interaction checks what the camera is looking at each frame.
+      disposeInteraction = createInteraction(scene, camera, canvas, onTargetChange, onInteract);
 
       scene.executeWhenReady(() => {
         if (disposed) return;

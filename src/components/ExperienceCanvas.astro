@@ -8,8 +8,20 @@
     A 3D test scene. Use Home or Directory to browse the website.
   </canvas>
 
+  <span
+    class="crosshair"
+    data-crosshair
+    aria-hidden="true"
+  ></span>
+
+  <span
+    class="interaction-label"
+    data-interaction-label
+    aria-hidden="true"
+  ></span>
+
   <p id="explore-controls" class="control-hint">
-    Click the room to explore · WASD to walk · Mouse to look · Esc to release
+    Click to explore · WASD to walk · Mouse to look · Click objects to interact · Esc to release
   </p>
 
   <p class="scene-message" data-scene-message role="status" hidden></p>
@@ -33,8 +45,10 @@
 
       const canvas = this.querySelector('canvas');
       const message = this.querySelector<HTMLElement>('[data-scene-message]');
+      const crosshair = this.querySelector<HTMLElement>('[data-crosshair]');
+      const interactionLabel = this.querySelector<HTMLElement>('[data-interaction-label]');
 
-      if (!canvas || !message) return;
+      if (!canvas || !message || !crosshair || !interactionLabel) return;
 
       message.hidden = false;
       message.textContent = 'Starting the 3D view…';
@@ -54,6 +68,17 @@
             message.hidden = true;
           },
           showError,
+          (interaction) => {
+            const hasTarget = interaction !== null;
+
+            crosshair.classList.toggle('is-targeting', hasTarget);
+
+            interactionLabel.textContent = interaction?.label ?? '';
+            interactionLabel.classList.toggle('is-visible', hasTarget);
+          },
+          (interaction) => {
+            interactionLabel.textContent = `${interaction.label} ✓`;
+          },
         );
       } catch (error) {
         showError(error);
@@ -113,5 +138,51 @@
     font-size: 0.85rem;
     text-align: center;
     pointer-events: none;
+  }
+
+  .crosshair {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.8);
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.45);
+    transition:
+      width 100ms ease,
+      height 100ms ease,
+      background 100ms ease,
+      box-shadow 100ms ease;
+  }
+
+  .crosshair.is-targeting {
+    width: 8px;
+    height: 8px;
+    background: #c3a6e8;
+    box-shadow:
+      0 0 0 2px rgba(195, 166, 232, 0.25),
+      0 0 8px rgba(195, 166, 232, 0.45);
+  }
+
+  .interaction-label {
+    position: absolute;
+    top: calc(50% + 14px);
+    left: 50%;
+    transform: translateX(-50%);
+    margin: 0;
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 0.75rem;
+    line-height: 1;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 100ms ease;
+  }
+
+  .interaction-label.is-visible {
+    opacity: 1;
   }
 </style>

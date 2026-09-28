@@ -7,6 +7,8 @@ import { CreateBox } from '@babylonjs/core/Meshes/Builders/boxBuilder';
 import { PhysicsAggregate } from '@babylonjs/core/Physics/v2/physicsAggregate';
 import { PhysicsShapeType } from '@babylonjs/core/Physics/v2/IPhysicsEnginePlugin';
 
+import type { InteractionDefinition } from './interactionTypes';
+
 export function createTestRoom(scene: Scene): void {
   // Interior dimensions. Our convention is 1 world unit = 1 metre.
   const width = 10;
@@ -29,7 +31,7 @@ export function createTestRoom(scene: Scene): void {
     position: Vector3,
     material: StandardMaterial,
     mass = 0,
-  ): void {
+  ) {
     const mesh = CreateBox(name, size, scene);
     mesh.position.copyFrom(position);
     mesh.material = material;
@@ -44,12 +46,17 @@ export function createTestRoom(scene: Scene): void {
       },
       scene,
     );
+    return mesh;
   }
 
   const floorMaterial = makeMaterial('room-floor-material', '#343039');
   const wallMaterial = makeMaterial('room-wall-material', '#68616F');
   const ceilingMaterial = makeMaterial('room-ceiling-material', '#45404C');
   const cubeMaterial = makeMaterial('cube-material', '#C3A6E8');
+  const interactableMaterial = makeMaterial(
+    'interactable-material',
+    '#8B70A8',
+  );
 
   // The floor's TOP surface is at y = 0.
   addBox(
@@ -113,4 +120,26 @@ export function createTestRoom(scene: Scene): void {
     cubeMaterial,
     1,
   );
+
+  // Temporary interaction target.
+  const interactionTarget = addBox(
+    'interaction-test',
+    {
+      width: 0.8,
+      height: 1.8,
+      depth: 0.8,
+    },
+    new Vector3(0, 0.9, 2.5),
+    interactableMaterial,
+  );
+
+  // Metadata lets the interaction system recognize this mesh.
+  const testInteraction: InteractionDefinition = {
+    type: 'inspect',
+    label: 'Inspect',
+  };
+
+  interactionTarget.metadata = {
+    interaction: testInteraction,
+  };
 }
