@@ -4,6 +4,7 @@ import type { AbstractMesh } from '@babylonjs/core/Meshes/abstractMesh';
 import { Color3 } from '@babylonjs/core/Maths/math.color';
 import { StandardMaterial } from '@babylonjs/core/Materials/standardMaterial';
 import type { InteractionDefinition } from './interactionTypes';
+import type { Node } from '@babylonjs/core/node';
 
 import '@babylonjs/core/Culling/ray';
 
@@ -23,12 +24,22 @@ export function createInteraction(
 
   const getInteraction = (
     mesh: AbstractMesh | null,
-    ): InteractionDefinition | null => {
-    return (
-        (mesh?.metadata?.interaction as InteractionDefinition | undefined) ??
-        null
-    );
-    };
+  ): InteractionDefinition | null => {
+    let current: Node | null = mesh;
+
+    while (current) {
+      const interaction =
+        current.metadata?.interaction as InteractionDefinition | undefined;
+
+      if (interaction) {
+        return interaction;
+      }
+
+       current = current.parent;
+    }
+
+    return null;
+  };
 
   const setTarget = (mesh: AbstractMesh | null) => {
     if (mesh === targetedMesh) return;

@@ -3,6 +3,7 @@ import { Vector3 } from '@babylonjs/core/Maths/math.vector';
 import { Color3 } from '@babylonjs/core/Maths/math.color';
 import { StandardMaterial } from '@babylonjs/core/Materials/standardMaterial';
 import { CreateBox } from '@babylonjs/core/Meshes/Builders/boxBuilder';
+import { TransformNode } from '@babylonjs/core/Meshes/transformNode';
 
 import { PhysicsAggregate } from '@babylonjs/core/Physics/v2/physicsAggregate';
 import { PhysicsShapeType } from '@babylonjs/core/Physics/v2/IPhysicsEnginePlugin';
@@ -121,28 +122,54 @@ export function createTestRoom(scene: Scene): void {
     1,
   );
 
-  // Temporary interaction target.
-  const interactionTarget = addBox(
-    'interaction-test',
-    {
-      width: 0.8,
-      height: 1.8,
-      depth: 0.8,
-    },
-    new Vector3(0, 0.9, 2.5),
-    interactableMaterial,
+  // Temporary multi-part interaction target.
+  // This mimics the basic hierarchy we may later receive from Blender.
+  const interactionRoot = new TransformNode(
+    'interaction-test-root',
+    scene,
   );
 
-  // Metadata lets the interaction system recognize this mesh.
+  interactionRoot.position = new Vector3(0, 0, 2.5);
+
+  const interactionBody = CreateBox(
+    'interaction-test-body',
+    {
+      width: 0.8,
+      height: 1.4,
+      depth: 0.8,
+    },
+    scene,
+  );
+
+  interactionBody.parent = interactionRoot;
+  interactionBody.position.y = 0.7;
+  interactionBody.material = interactableMaterial;
+
+  const interactionTop = CreateBox(
+    'interaction-test-top',
+    {
+      width: 1.1,
+      height: 0.3,
+      depth: 1.1,
+    },
+    scene,
+  );
+
+  interactionTop.parent = interactionRoot;
+  interactionTop.position.y = 1.55;
+  interactionTop.material = interactableMaterial;
+
   const testInteraction: InteractionDefinition = {
     type: 'inspect',
     label: 'Inspect',
-    title: 'Test Object',
+    title: 'Test Artifact',
     description:
-      'A temporary object used to test inspection inside the 3DLAW environment.',
+      'A temporary multi-part object used to test how 3DLAW handles grouped interactive assets.',
   };
 
-  interactionTarget.metadata = {
+  // The logical object owns the interaction,
+  // rather than either individual visible mesh.
+  interactionRoot.metadata = {
     interaction: testInteraction,
   };
 }
